@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+
+from pathlib import Path
+import subprocess as sp
+import shlex
+import contextlib
+import os
+
+
+RAMFS_MOUNT = '/tmp/mount'
+
+
+def run_test(name, cmd):
+    print('-' * 80)
+    print(f'Running... {name}')
+
+    res = sp.run(shlex.split(cmd), env={'RAMFS_MOUNT': RAMFS_MOUNT})
+
+    if res.returncode == 0:
+        print('Success...')
+    else:
+        print(f'Failed... {cmd}')
+
+    print('-' * 80)
+    print()
+
+
+class MountManager(contextlib.AbstractContextManager):
+    @staticmethod
+    def mount():
+        sp.run(shlex.split(f'mkdir -p "{RAMFS_MOUNT}"'))
+        sp.run(shlex.split(f'mount -t ramfs -o size=1m ramfs "{RAMFS_MOUNT}"'))
+
+    @staticmethod
+    def umount():
+        sp.run(shlex.split(f'umount "{RAMFS_MOUNT}"'))
+        sp.run(shlex.split(f'rm -rf "{RAMFS_MOUNT}"'))
+
+    def __enter__(self):
+        self.mount()
+
+        return super().__enter__()
+
+    def __exit__(self, __exc_type, __exc_value, __traceback):
+        self.umount()
+
+        return super().__exit__(__exc_type, __exc_value, __traceback)
+
+
+tests = [
+    ('mknod', f'python3 mknod.py'),
+    ('init_fs_context', f'python3 init_fs_context.py')
+]
+
+
+def main():
+    os.chdir(Path(__file__).resolve().parent)
+    with MountManager():
+        for name, cmd in tests:
+            run_test(name, cmd)
+
+
+if __name__ == '__main__':
+    main()
