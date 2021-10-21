@@ -50,7 +50,9 @@ class MountManager(contextlib.AbstractContextManager):
 tests = [
     ('mknod', f'python3 mknod.py'),
     ('init_fs_context', f'python3 init_fs_context.py'),
-    ('create', f'python3 create.py')
+    ('create', f'python3 create.py'),
+    ('tmpfile', f'python3 tmpfile.py'),
+    ('parse_param', f'python3 ramfs_parse_param.py'),
 ]
 
 
