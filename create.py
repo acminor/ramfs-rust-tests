@@ -27,7 +27,7 @@ def check_perms(requested, actual):
 mount = os.getenv("RAMFS_MOUNT")
 assert mount is not None, "RAMFS_MOUNT undeclared. Failure."
 mpath = Path(mount)
-assert mpath, "RAMFS_MOUNT doesn't exist. Failure."
+assert mpath.exists(), "RAMFS_MOUNT: %s doesn't exist. Failure." % mpath
 
 # TEST 1: regular file 1
 fpath = mpath / "ramfs_create_test_empty1"
