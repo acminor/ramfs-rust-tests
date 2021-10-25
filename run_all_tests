@@ -59,7 +59,8 @@ tests = [
     ('create', f'python3 create.py'),
     ('mkdir', f'python3 mkdir.py'),
     ('tmpfile', f'python3 tmpfile.py'),
-    ('parse_param', f'python3 ramfs_parse_param.py')
+    ('parse_param', f'python3 ramfs_parse_param.py'),
+    ('symlink', f'python3 symlink.py')
 ]
 
 
