@@ -33,6 +33,8 @@ class MountManager(contextlib.AbstractContextManager):
 
     @staticmethod
     def umount():
+        # make sure mount directory is not empty before umount check
+        sp.run(shlex.split(f'touch "{RAMFS_MOUNT}"/tmp-file'))
         sp.run(shlex.split(f'umount "{RAMFS_MOUNT}"'))
 
         ls = sp.run(shlex.split(f'ls {RAMFS_MOUNT}'), stdout=sp.PIPE)
