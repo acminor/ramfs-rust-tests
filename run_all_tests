@@ -51,7 +51,9 @@ tests = [
     ('mknod', f'python3 mknod.py'),
     ('init_fs_context', f'python3 init_fs_context.py'),
     ('create', f'python3 create.py'),
-    ('mkdir', f'python3 mkdir.py')
+    ('mkdir', f'python3 mkdir.py'),
+    ('tmpfile', f'python3 tmpfile.py'),
+    ('parse_param', f'python3 ramfs_parse_param.py')
 ]
 
 
