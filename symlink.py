@@ -9,6 +9,7 @@
 from pathlib import Path
 import os
 import subprocess
+import time
 
 # retrieve process' umask
 umask = os.umask(0)
@@ -26,6 +27,13 @@ def get_perms(requested, actual):
     actual_lowbits = actual & 0x1ff
     return [expected, actual_lowbits]
 
+# Takes in a fstat object and checks its file times against the the given
+# current time
+def check_file_times(fstat, ctime):
+    # (we'll check within one second, in case it took slightly longer to create)
+    assert int(fstat.st_atime) - int(ctime) <= 1, "File creation time mismatch: %d %d" % \
+           (fstat.st_ctime, ctime)
+
 # find the ramfs mounting point
 mount = os.getenv("RAMFS_MOUNT")
 assert mount is not None, "RAMFS_MOUNT undeclared. Failure."
@@ -38,10 +46,12 @@ echo_bin = Path("/bin/echo")
 
 # TEST 1: link to ls
 lpath = mpath / "ls-link1"
+ttime = round(time.time())
 lpath.symlink_to(ls_bin)
 
 assert lpath.exists(), "TEST 1: symlink failed."
 lstat = lpath.stat()
+check_file_times(lstat, ttime)
 perms = get_perms(0o777, lstat.st_mode)
 assert perms[0] == perms[1], "TEST 1: symlink permissions are incorrect: 0o%o vs 0o%o" % (perms[0], perms[1])
 completed_proc = subprocess.run(str(lpath), stdout=subprocess.DEVNULL)
@@ -50,14 +60,14 @@ assert completed_proc.returncode == 0, ("TEST 1: executing %s failed. (return co
 
 # TEST 2: link to echo
 lpath = mpath / "echo-link1"
+ttime = round(time.time())
 lpath.symlink_to(echo_bin)
 assert lpath.exists(), "TEST 1: symlink failed."
 lstat = lpath.stat()
+check_file_times(lstat, ttime)
 perms = get_perms(0o777, lstat.st_mode)
 assert perms[0] == perms[1], "TEST 1: symlink permissions are incorrect: 0o%o vs 0o%o" % (perms[0], perms[1])
 completed_proc = subprocess.run([str(lpath), "echo-test"], stdout=subprocess.DEVNULL)
 assert completed_proc.returncode == 0, ("TEST 2: executing %s failed. (return code = %d)" %
                                         (lpath, completed_proc.returncode))
-
-
 
