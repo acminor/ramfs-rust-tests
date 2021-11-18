@@ -58,9 +58,14 @@ with MountManager(['mode=644']):
 
 exception = False
 try:
+    print('Bad mode test will cause a kernel log to be printed.')
+    print('Ignore any log about ramfs bad mode. This is expected.')
+    print('Other logs might be indicative of errors.')
+    print('Bad mode not after this message might be an error.')
     with MountManager(['mode=888']):
         pass
 except:
+    print('Done with bad mode test')
     exception = True
 assert exception, 'exception was not thrown for invalid mode parameter'
 
